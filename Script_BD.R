@@ -12,9 +12,11 @@ library('vegan')
 library('ggplot2')
 library('ggpubr')
 library('ggthemes')
+library('dplyr')
+library('scales')
 
 #Leemos base de datos
-BD<-read_excel('6_BD_SN_FlujosGEIs_Nacho.xlsx')
+BD<-read_excel('datos_con_media_desviacion_R90.xlsx')
 
 ####TODOS LOS DATOS####
 
@@ -76,21 +78,6 @@ shapiro.test(residuals(modelo_abrucena))
 #Homogeneidad de varianzas 
 bartlett.test(Flujo_CO2~Tratamiento ,data=BD_abrucena)
 
-####POR GÉNERO####
-
-#Pinus
-BD_pinus <- rbind(BD_portugos, BD_abrucena)
-
-modelo_pinus<-aov(Flujo_CO2~Tratamiento ,data=BD_pinus)
-summary(modelo_pinus)
-
-#Quercus
-BD_quercus <- rbind(BD_canar, BD_finana)
-
-modelo_quercus<-aov(Flujo_CO2~Tratamiento ,data=BD_quercus)
-summary(modelo_quercus)
-
-
 
 ####ANALISIS NO PARAMETRICOS####
 
@@ -103,7 +90,7 @@ kruskal.test(Flujo_CO2 ~ Tratamiento, data = BD)
 pairwise.wilcox.test(BD$Flujo_CO2, BD$Tratamiento, p.adjust.method = "bonf", paired = F)
 
 ggplot(BD, aes(x = Tratamiento, y = Flujo_CO2, fill = Tratamiento))+
-  geom_boxplot()+
+  geom_violin()+
   geom_point()+
   ylim(0,22)+
   stat_compare_means(method = "kruskal",label.y =  22)+
@@ -116,7 +103,7 @@ kruskal.test(Flujo_CO2 ~ Sitio, data = BD)
 pairwise.wilcox.test(BD$Flujo_CO2, BD$Sitio, p.adjust.method = "bonf", paired = F)
 
 ggplot(BD, aes(x = Sitio, y = Flujo_CO2, fill = Sitio))+
-  geom_boxplot()+
+  geom_violin()+
   geom_point()+
   ylim(0,22)+
   stat_compare_means(method = "kruskal",label.y =  22)+
@@ -124,19 +111,28 @@ ggplot(BD, aes(x = Sitio, y = Flujo_CO2, fill = Sitio))+
   theme_classic()
 
 
-###
+####VIOLIN PLOT####
+colores_tratamiento <- c("palegreen3", "tan3")  
+
 #Ahora Tratamiento con subset por sitio. Empezamos con Portugos.
 kruskal.test(Flujo_CO2 ~ Tratamiento, data = BD_portugos)
 
 pairwise.wilcox.test(BD_portugos$Flujo_CO2, BD_portugos$Tratamiento, p.adjust.method = "bonf", paired = F)
 
 ggplot(BD_portugos, aes(x = Tratamiento, y = Flujo_CO2, fill = Tratamiento))+
-  geom_boxplot()+
+  geom_violin()+
   geom_point()+
-  ylim(0,22)+
-  stat_compare_means(method = "kruskal",label.y =  22)+
-  stat_compare_means(method = "wilcox.test", ref.group = "BS", label = "p.signif", label.y = 20)+
-  theme_classic()
+  ylim(0,15)+
+  stat_compare_means(method = "kruskal",label.y =  14)+
+  stat_compare_means(method = "wilcox.test", ref.group = "Bajo biomasa", label = "p.signif", label.y = 13)+
+  theme_gray() +
+  scale_fill_manual(values = colores_tratamiento) +
+  labs(y=expression(F[CO[2]]~(mu~mol~m^{-2}~s^{-1}))) +
+  theme(axis.text = element_text(size = 12),
+        strip.text.x = element_text(size = 12),
+        axis.title = element_text(size = 15),
+        legend.title = element_text(size = 15),
+        legend.text = element_text(size = 12))
 
 
 #Cáñar.
@@ -145,12 +141,19 @@ kruskal.test(Flujo_CO2 ~ Tratamiento, data = BD_canar)
 pairwise.wilcox.test(BD_canar$Flujo_CO2, BD_canar$Tratamiento, p.adjust.method = "bonf", paired = F)
 
 ggplot(BD_canar, aes(x = Tratamiento, y = Flujo_CO2, fill = Tratamiento))+
-  geom_boxplot()+
+  geom_violin()+
   geom_point()+
-  ylim(0,22)+
-  stat_compare_means(method = "kruskal",label.y =  22)+
-  stat_compare_means(method = "wilcox.test", ref.group = "BS", label = "p.signif", label.y = 20)+
-  theme_classic()
+  ylim(0,15)+
+  stat_compare_means(method = "kruskal",label.y =  14)+
+  stat_compare_means(method = "wilcox.test", ref.group = "Bajo biomasa", label = "p.signif", label.y = 13)+
+  theme_gray() +
+  scale_fill_manual(values = colores_tratamiento) +
+  labs(y=expression(F[CO[2]]~(mu~mol~m^{-2}~s^{-1}))) +
+  theme(axis.text = element_text(size = 12),
+        strip.text.x = element_text(size = 12),
+        axis.title = element_text(size = 15),
+        legend.title = element_text(size = 15),
+        legend.text = element_text(size = 12))
 
 
 #Finana.
@@ -159,12 +162,19 @@ kruskal.test(Flujo_CO2 ~ Tratamiento, data = BD_finana)
 pairwise.wilcox.test(BD_finana$Flujo_CO2, BD_finana$Tratamiento, p.adjust.method = "bonf", paired = F)
 
 ggplot(BD_finana, aes(x = Tratamiento, y = Flujo_CO2, fill = Tratamiento))+
-  geom_boxplot()+
+  geom_violin()+
   geom_point()+
-  ylim(0,22)+
-  stat_compare_means(method = "kruskal",label.y =  22)+
-  stat_compare_means(method = "wilcox.test", ref.group = "BS", label = "p.signif", label.y = 20)+
-  theme_classic()
+  ylim(0,15)+
+  stat_compare_means(method = "kruskal",label.y =  14)+
+  stat_compare_means(method = "wilcox.test", ref.group = "Bajo biomasa", label = "p.signif", label.y = 13)+
+  theme_gray() +
+  scale_fill_manual(values = colores_tratamiento) +
+  labs(y=expression(F[CO[2]]~(mu~mol~m^{-2}~s^{-1}))) +
+  theme(axis.text = element_text(size = 12),
+        strip.text.x = element_text(size = 12),
+        axis.title = element_text(size = 15),
+        legend.title = element_text(size = 15),
+        legend.text = element_text(size = 12))
 
 
 #Abrucena.
@@ -173,48 +183,25 @@ kruskal.test(Flujo_CO2 ~ Tratamiento, data = BD_abrucena)
 pairwise.wilcox.test(BD_abrucena$Flujo_CO2, BD_abrucena$Tratamiento, p.adjust.method = "bonf", paired = F)
 
 ggplot(BD_abrucena, aes(x = Tratamiento, y = Flujo_CO2, fill = Tratamiento))+
-  geom_boxplot()+
+  geom_violin()+
   geom_point()+
-  ylim(0,22)+
-  stat_compare_means(method = "kruskal",label.y =  22)+
-  stat_compare_means(method = "wilcox.test", ref.group = "BS", label = "p.signif", label.y = 20)+
-  theme_classic()
-
-
-#Pinus juntos
-kruskal.test(Flujo_CO2 ~ Tratamiento, data = BD_pinus)
-
-pairwise.wilcox.test(BD_pinus$Flujo_CO2, BD_pinus$Tratamiento, p.adjust.method = "bonf", paired = F)
-
-ggplot(BD_pinus, aes(x = Tratamiento, y = Flujo_CO2, fill = Tratamiento))+
-  geom_boxplot()+
-  geom_point()+
-  ylim(0,22)+
-  stat_compare_means(method = "kruskal",label.y =  22)+
-  stat_compare_means(method = "wilcox.test", ref.group = "BS", label = "p.signif", label.y = 20)+
-  theme_classic()
-
-
-#Quercus juntos
-kruskal.test(Flujo_CO2 ~ Tratamiento, data = BD_quercus)
-
-pairwise.wilcox.test(BD_quercus$Flujo_CO2, BD_quercus$Tratamiento, p.adjust.method = "bonf", paired = F)
-
-ggplot(BD_quercus, aes(x = Tratamiento, y = Flujo_CO2, fill = Tratamiento))+
-  geom_boxplot()+
-  geom_point()+
-  ylim(0,22)+
-  stat_compare_means(method = "kruskal",label.y =  22)+
-  stat_compare_means(method = "wilcox.test", ref.group = "BS", label = "p.signif", label.y = 20)+
-  theme_classic()
+  ylim(0,15)+
+  stat_compare_means(method = "kruskal",label.y =  14)+
+  stat_compare_means(method = "wilcox.test", ref.group = "Bajo biomasa", label = "p.signif", label.y = 13)+
+  theme_gray() +
+  scale_fill_manual(values = colores_tratamiento) +
+  labs(y=expression(F[CO[2]]~(mu~mol~m^{-2}~s^{-1}))) +
+  theme(axis.text = element_text(size = 12),
+        strip.text.x = element_text(size = 12),
+        axis.title = element_text(size = 15),
+        legend.title = element_text(size = 15),
+        legend.text = element_text(size = 12))
 
 
 
+####REUNIÓN JUNIO####
 
-
-####REUNIÓN JUNIO
-
-#OBJETIVO: cambiar los boxplots por violin plots y hacerlo por sitio cada dos semanas
+#OBJETIVO: cambiar los violins por violin plots y hacerlo por sitio cada dos semanas
 
 #Viendo los resultados lo voy a hacer por mes también.
 
@@ -225,47 +212,96 @@ BD_finana <- subset(BD, Sitio == 'Oak forest (Finana)')
 BD_abrucena <- subset(BD, Sitio == 'Pine forest (Abrucena)')
 
 
-#PORTUGOS
+##PORTUGOS
 
+#Por semana ORIGINAL VIOLIN PLOT
+ggplot(BD_portugos, aes(x = Semana, y = Flujo_CO2, fill = Tratamiento)) +
+  geom_violin() +  # Utilizar geom_violin() en lugar de geom_violin()
+  geom_point() +
+  ylim(0, 8) +
+  stat_compare_means(method = "kruskal", label.y = 9) +
+  stat_compare_means(method = "wilcox.test", ref.group = "Bajo biomasa", label = "p.signif", label.y = 7.5) +
+  scale_x_discrete(labels = BD_portugos$Semana) +
+  theme_classic()
+
+
+##BARRAS
+colores_tratamiento <- c("palegreen3", "tan3")  
+
+ggplot(BD_portugos, aes(x = Semana, y = Media_Flujo_CO2, fill = Tratamiento)) +
+  geom_col(position = position_dodge(width = 2), width = 1.8) +
+  geom_errorbar(aes(ymin = Media_Flujo_CO2 - SD_Flujo_CO2, ymax = Media_Flujo_CO2 + SD_Flujo_CO2),
+                position = position_dodge(width = 2), width = 0.8) +
+  ylim(0, 8) +
+  facet_grid(cols = vars(Semana), scales = "free_x", switch = "x") +
+  scale_x_discrete(labels = BD_portugos$Semana) +
+  scale_y_continuous(breaks = seq(0, 8, by = 0.5), limits = c(0, 8)) +  # Personalización de la escala en el eje y
+  theme_gray() +
+  scale_fill_manual(values = colores_tratamiento) +
+  labs(y=expression(F[CO[2]]~(mu~mol~m^{-2}~s^{-1}))) +
+  theme(axis.text = element_text(size = 20),
+        strip.text.x = element_text(size = 17),
+        axis.title = element_text(size = 20),
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 17))
+
+
+##CÁÑAR
 #Por semana
-ggplot(BD_portugos, aes(x = Tratamiento, y = Flujo_CO2, fill = Tratamiento)) +
-  geom_violin() +  # Utilizar geom_violin() en lugar de geom_boxplot()
-  geom_point() +
-  ylim(0, 10) +
-  stat_compare_means(method = "kruskal", label.y = 9) +
-  stat_compare_means(method = "wilcox.test", ref.group = "Bajo biomasa", label = "p.signif", label.y = 7.5) +
-  facet_wrap(~ Semana) +
-  theme_classic()
+ggplot(BD_canar, aes(x = Semana, y = Media_Flujo_CO2, fill = Tratamiento)) +
+  geom_col(position = position_dodge(width = 2), width = 1.8) +
+  geom_errorbar(aes(ymin = Media_Flujo_CO2 - SD_Flujo_CO2, ymax = Media_Flujo_CO2 + SD_Flujo_CO2),
+                position = position_dodge(width = 2), width = 0.8) +
+  ylim(0, 8) +
+  facet_grid(cols = vars(Semana), scales = "free_x", switch = "x") +
+  scale_x_discrete(labels = BD_canar$Semana) +
+  scale_y_continuous(breaks = seq(0, 8, by = 0.5), limits = c(0, 8)) +  # Personalización de la escala en el eje y
+  theme_gray() +
+  scale_fill_manual(values = colores_tratamiento) +
+  labs(y=expression(F[CO[2]]~(mu~mol~m^{-2}~s^{-1}))) +
+  theme(axis.text = element_text(size = 20),
+        strip.text.x = element_text(size = 17),
+        axis.title = element_text(size = 20),
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 17))
+
+##FIÑANA
+#Por semana
+ggplot(BD_finana, aes(x = Semana, y = Media_Flujo_CO2, fill = Tratamiento)) +
+  geom_col(position = position_dodge(width = 2), width = 1.8) +
+  geom_errorbar(aes(ymin = Media_Flujo_CO2 - SD_Flujo_CO2, ymax = Media_Flujo_CO2 + SD_Flujo_CO2),
+                position = position_dodge(width = 2), width = 0.8) +
+  ylim(0, 8) +
+  facet_grid(cols = vars(Semana), scales = "free_x", switch = "x") +
+  scale_x_discrete(labels = BD_finana$Semana) +
+  scale_y_continuous(breaks = seq(0, 8, by = 0.5), limits = c(0, 8)) +  # Personalización de la escala en el eje y
+  theme_gray() +
+  scale_fill_manual(values = colores_tratamiento) +
+  labs(y=expression(F[CO[2]]~(mu~mol~m^{-2}~s^{-1}))) +
+  theme(axis.text = element_text(size = 20),
+        strip.text.x = element_text(size = 17),
+        axis.title = element_text(size = 20),
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 17))
 
 
-#CÁÑAR
-ggplot(BD_canar, aes(x = Tratamiento, y = Flujo_CO2, fill = Tratamiento)) +
-  geom_violin() +  # Utilizar geom_violin() en lugar de geom_boxplot()
-  geom_point() +
-  ylim(0, 10) +
-  stat_compare_means(method = "kruskal", label.y = 9) +
-  stat_compare_means(method = "wilcox.test", ref.group = "Bajo biomasa", label = "p.signif", label.y = 7.5) +
-  facet_wrap(~ Semana) +
-  theme_classic()
-
-#FIÑANA
-ggplot(BD_finana, aes(x = Tratamiento, y = Flujo_CO2, fill = Tratamiento)) +
-  geom_violin() +  # Utilizar geom_violin() en lugar de geom_boxplot()
-  geom_point() +
-  ylim(0, 10) +
-  stat_compare_means(method = "kruskal", label.y = 9) +
-  stat_compare_means(method = "wilcox.test", ref.group = "Bajo biomasa", label = "p.signif", label.y = 7.5) +
-  facet_wrap(~ Semana) +
-  theme_classic()
-
-#ABRUCENA
-ggplot(BD_abrucena, aes(x = Tratamiento, y = Flujo_CO2, fill = Tratamiento)) +
-  geom_violin() +  # Utilizar geom_violin() en lugar de geom_boxplot()
-  geom_point() +
-  ylim(0, 10) +
-  stat_compare_means(method = "kruskal", label.y = 9) +
-  stat_compare_means(method = "wilcox.test", ref.group = "Bajo biomasa", label = "p.signif", label.y = 7.5) +
-  facet_wrap(~ Semana) +
-  theme_classic()
-
+##ABRUCENA
+#Por semana
+ggplot(BD_abrucena, aes(x = Semana, y = Media_Flujo_CO2, fill = Tratamiento)) +
+  geom_col(position = position_dodge(width = 2), width = 1.8) +
+  geom_errorbar(aes(ymin = Media_Flujo_CO2 - SD_Flujo_CO2, ymax = Media_Flujo_CO2 + SD_Flujo_CO2),
+                position = position_dodge(width = 2), width = 0.8) +
+  ylim(0, 8) +
+  facet_grid(cols = vars(Semana), scales = "free_x", switch = "x") +
+  scale_x_discrete(labels = BD_abrucena$Semana) +
+  scale_y_continuous(breaks = seq(0, 8, by = 0.5), limits = c(0, 8)) +  # Personalización de la escala en el eje y
+  theme_gray() +
+  theme_gray() +
+  scale_fill_manual(values = colores_tratamiento) +
+  labs(y=expression(F[CO[2]]~(mu~mol~m^{-2}~s^{-1}))) +
+  theme(axis.text = element_text(size = 20),
+        strip.text.x = element_text(size = 17),
+        axis.title = element_text(size = 20),
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 17))
 
